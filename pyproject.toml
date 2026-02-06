@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "actionize"
+version = "0.1.0"
+description = "Parse messy meeting notes and extract structured action items."
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[project.scripts]
+actionize = "actionize.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["actionize*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,15 @@
+Kickoff sync — Decisions: use SSO for internal users.
+
+TODO: Update onboarding doc. Owner: Priya. Due: next Friday.
+
+Action: Reach out to vendor about pricing tiers (owner Sam) due 2/20
+
+We should probably fix flaky CI tests soon (P1)
+
+John to draft API rate limit proposal by March 1
+
+Reminder: Send customer follow-up email (no owner yet)
+
+Decision: move launch to Q2.
+
+ACTION ITEM — Migrate staging database; Owner: Mei; Due: 2026-02-28; Priority: P0
