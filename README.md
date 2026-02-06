@@ -28,29 +28,31 @@ The `--out` flag sets the output directory (defaults to `.\out`).
 
 ---
 
-## Before / After
+## Example: Before and After
 
-### Input -- `examples\meeting_notes.txt`
+This is what Actionize does in a single command. Eight messy lines go in, six clean action items come out -- decisions filtered, owners extracted, dates normalized, priorities mapped.
+
+### Raw input -- `examples\meeting_notes.txt`
 
 ```
-Kickoff sync -- Decisions: use SSO for internal users.
+Kickoff sync -- Decisions: use SSO for internal users.        <-- filtered out (decision, not action)
 
-TODO: Update onboarding doc. Owner: Priya. Due: next Friday.
+TODO: Update onboarding doc. Owner: Priya. Due: next Friday.  <-- three different metadata formats in one line
 
 Action: Reach out to vendor about pricing tiers (owner Sam) due 2/20
 
-We should probably fix flaky CI tests soon (P1)
+We should probably fix flaky CI tests soon (P1)               <-- no keyword prefix, detected by priority tag
 
-John to draft API rate limit proposal by March 1
+John to draft API rate limit proposal by March 1              <-- natural language "Name to verb" pattern
 
-Reminder: Send customer follow-up email (no owner yet)
+Reminder: Send customer follow-up email (no owner yet)        <-- explicit unassigned marker
 
-Decision: move launch to Q2.
+Decision: move launch to Q2.                                  <-- filtered out (decision, not action)
 
 ACTION ITEM -- Migrate staging database; Owner: Mei; Due: 2026-02-28; Priority: P0
 ```
 
-### Output -- `out\action_items.md`
+### Markdown output -- `out\action_items.md`
 
 ```markdown
 # Action Items
@@ -63,7 +65,23 @@ ACTION ITEM -- Migrate staging database; Owner: Mei; Due: 2026-02-28; Priority: 
 - [ ] Send customer follow-up email
 ```
 
-### Output -- `out\action_items.json`
+What happened:
+
+| Input | Output | What the parser did |
+|-------|--------|---------------------|
+| `Owner: Priya` | `@Priya` | Extracted from `Owner: Name` format |
+| `(owner Sam)` | `@Sam` | Extracted from parenthetical format |
+| `John to draft...` | `@John` | Recognized natural language pattern |
+| `next Friday` | `2026-02-13` | Computed relative date from today |
+| `2/20` | `2026-02-20` | Normalized US slash date with inferred year |
+| `March 1` | `2026-03-01` | Normalized month-name date |
+| `(P1)` | `[high]` | Mapped priority tag |
+| `Priority: P0` | `[critical]` | Mapped priority annotation |
+| 2 decision lines | *(dropped)* | Filtered out non-action items |
+
+### JSON output -- `out\action_items.json`
+
+Machine-readable structured data, sorted by owner then due date, ready to feed into other tools:
 
 ```json
 {
@@ -81,13 +99,39 @@ ACTION ITEM -- Migrate staging database; Owner: Mei; Due: 2026-02-28; Priority: 
       "priority": "critical",
       "raw_line": "ACTION ITEM -- Migrate staging database; Owner: Mei; Due: 2026-02-28; Priority: P0",
       "task": "Migrate staging database"
+    },
+    {
+      "due_date": "2026-02-13",
+      "owner": "Priya",
+      "priority": "normal",
+      "raw_line": "TODO: Update onboarding doc. Owner: Priya. Due: next Friday.",
+      "task": "Update onboarding doc"
+    },
+    {
+      "due_date": "2026-02-20",
+      "owner": "Sam",
+      "priority": "normal",
+      "raw_line": "Action: Reach out to vendor about pricing tiers (owner Sam) due 2/20",
+      "task": "Reach out to vendor about pricing tiers"
+    },
+    {
+      "due_date": "",
+      "owner": "unassigned",
+      "priority": "high",
+      "raw_line": "We should probably fix flaky CI tests soon (P1)",
+      "task": "We should probably fix flaky CI tests soon"
+    },
+    {
+      "due_date": "",
+      "owner": "unassigned",
+      "priority": "normal",
+      "raw_line": "Reminder: Send customer follow-up email (no owner yet)",
+      "task": "Send customer follow-up email"
     }
   ],
   "count": 6
 }
 ```
-
-*(Truncated for brevity -- the full output contains all 6 items.)*
 
 ---
 
